@@ -1,5 +1,6 @@
 package com.maximjavafx;
 
+import com.maximjavafx.CellFactory.CheckboxCellFactory;
 import com.maximjavafx.models.Document;
 import com.maximjavafx.models.Invoice;
 import javafx.beans.property.SimpleStringProperty;
@@ -11,6 +12,7 @@ import javafx.util.Callback;
 
 import java.net.URL;
 import java.util.Calendar;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
@@ -28,31 +30,20 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        Document[] docs = new Document[50];
+
         Invoice invoice = new Invoice("A27", Calendar.getInstance().getTime(), "МИШУ", 2.3,
                 "Рубль", 2.2, "Бананы", 3);
 
-        column_checkbox.setCellFactory(new Callback<TableColumn<Document, CheckBox>, TableCell<Document, CheckBox>>() {
-            @Override
-            public TableCell<Document, CheckBox> call(TableColumn<Document, CheckBox> param) {
-                return new TableCell<Document, CheckBox>() {
-                    private final CheckBox checkBox = new CheckBox();
+        for (int i = 0; i < 50; i++) {
+            docs[i] = invoice;
+        }
 
-                    @Override
-                    protected void updateItem(CheckBox item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (empty) {
-                            setGraphic(null);
-                        } else {
-                            setGraphic(checkBox);
-                        }
-                    }
-                };
-            }
-        });
+        column_checkbox.setCellFactory(new CheckboxCellFactory());
         column_docs.setCellValueFactory(aa -> {
             return new SimpleStringProperty(aa.getValue().toString());
         });
 
-        tableView_docs.getItems().add(invoice);
+        tableView_docs.getItems().addAll(docs);
     }
 }
