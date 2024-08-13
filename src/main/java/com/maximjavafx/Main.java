@@ -1,5 +1,7 @@
 package com.maximjavafx;
 
+import com.maximjavafx.Controller.MainController;
+import com.maximjavafx.Services.FormUrls;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -7,7 +9,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.net.URL;
 
 public class Main extends Application{
 
@@ -17,21 +18,19 @@ public class Main extends Application{
 
     @Override
     public void start(Stage stage) throws IOException {
-
-        URL location = getClass().getResource("/Main.fxml");
-        System.out.println("HERE");
-        System.out.println(location);
-        //assert location != null;
-        Parent root = FXMLLoader.load(location);
-        //var root = new Group();
+        var loader = new FXMLLoader(FormUrls.MAIN);
+        Parent root = loader.load();
         var scene = new Scene(root);
 
+        MainController controller = loader.getController();
+
         stage.setScene(scene);
-        stage.setTitle("JavaFX Application");
-        stage.setWidth(900);
-        stage.setMinWidth(900);
-        stage.setHeight(700);
-        stage.setMinHeight(700);
+        stage.setTitle("Документы");
+        stage.setMinWidth(stage.getWidth());
+        stage.setMinHeight(stage.getHeight());
+        stage.setOnCloseRequest(event -> {
+            controller.onClose();
+        });
         stage.show();
     }
 }

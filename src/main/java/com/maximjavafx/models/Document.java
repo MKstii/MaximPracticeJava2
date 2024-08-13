@@ -3,19 +3,20 @@ package com.maximjavafx.models;
 import lombok.*;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @Getter
 @Setter
 public abstract class Document {
     protected String number;
-    protected Date date;
+    protected LocalDate date;
     protected String username;
     protected Double sum;
 
     @Override
     public String toString(){
-        var df = new SimpleDateFormat("dd.MM.yyyy");
+        var df = DateTimeFormatter.ofPattern("dd.MM.yyyy");
         return GetDocumentName() + " от " + df.format(date) + " номер " + number;
     }
 
