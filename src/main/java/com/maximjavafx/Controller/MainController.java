@@ -4,28 +4,24 @@ import com.maximjavafx.CellFactory.CheckboxCellFactory;
 import com.maximjavafx.Repository.DocsRepository;
 import com.maximjavafx.Services.FormFactory;
 import com.maximjavafx.Services.FormUrls;
-import com.maximjavafx.Services.StageService;
+import com.maximjavafx.Services.SaveLoadJsonService;
 import com.maximjavafx.models.Document;
-import com.maximjavafx.models.Invoice;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.event.ActionEvent;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import lombok.Setter;
 
 import java.io.IOException;
 import java.net.URL;
-import java.time.LocalDate;
-import java.util.Calendar;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class MainController implements Initializable {
-    private StageService stageService;
     private FormFactory formFactory;
-    @Setter
-    private Stage stage;
 
     @FXML
     private TableView<Document> tableView_docs;
@@ -41,16 +37,15 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        stageService = new StageService();
         formFactory = new FormFactory();
         DocsRepository docsRepository = DocsRepository.getInstance();
 
         tableView_docs.setItems(docsRepository.getDocs());
+        tableView_docs.setSelectionModel(null);
 
         column_checkbox.setCellFactory(new CheckboxCellFactory());
-        column_docs.setCellValueFactory(aa -> {
-            return new SimpleStringProperty(aa.getValue().toString());
-        });
+        column_docs.setCellValueFactory(aa ->
+                new SimpleStringProperty(aa.getValue().toString()));
     }
 
     @FXML
@@ -68,14 +63,69 @@ public class MainController implements Initializable {
         openForm(FormUrls.PAYMENT_REQUEST, "Заявка на оплату");
     }
 
-    public void onClose(){
-        stageService.CloseAllStages();
+    @FXML
+    private void viewDocument(ActionEvent e) throws IOException{
+        var checkedDocs = getCheckedDocuments();
+        if(checkedDocs.size() != 1){
+            System.out.println("Select only 1 document");
+            return;
+        }
+        var stage = formFactory.CreateInfo(checkedDocs.getFirst(), btn_invoice.getScene().getWindow());
+        stage.showAndWait();
+    }
+
+    @FXML
+    private void deleteDocuments(){
+        var checkedDocs = getCheckedDocuments();
+        var docsRepos = DocsRepository.getInstance();
+        docsRepos.deleteAll(checkedDocs);
+    }
+
+    @FXML
+    private void saveDocuments() throws IOException {
+        var checkedDocs = getCheckedDocuments();
+        if(checkedDocs.isEmpty()){
+            System.out.println("Не выбраны объекты");
+            return;
+        }
+        var fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("TXT", "*.txt"));
+        fileChooser.setTitle("Выберите место для сохранения");
+        var selectedFile = fileChooser.showSaveDialog(btn_invoice.getScene().getWindow());
+
+        if(selectedFile != null){
+            var saveService = new SaveLoadJsonService();
+            saveService.Save(checkedDocs, selectedFile.getPath());
+        }
+    }
+
+    @FXML
+    private void loadDocuments() throws IOException {
+        var fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("TXT", "*.txt"));
+        fileChooser.setTitle("Выберите файл с данными");
+        var selectedFile = fileChooser.showOpenDialog(btn_invoice.getScene().getWindow());
+
+        if(selectedFile != null){
+            var saveService = new SaveLoadJsonService();
+            saveService.Load(selectedFile.getPath());
+        }
+    }
+
+    @FXML
+    private void close() {
+        Stage stage = (Stage) btn_invoice.getScene().getWindow();
+        stage.close();
     }
 
     private void openForm(URL url, String formName) throws IOException {
-        var form = formFactory.CreateForm(url, formName);
-        stageService.AddStage(form);
-        form.show();
+        var form = formFactory.CreateForm(url, formName, btn_invoice.getScene().getWindow());
+        form.showAndWait();
     }
 
+    private List<Document> getCheckedDocuments(){
+        return tableView_docs.getItems().stream()
+                .filter(doc -> doc.getCheckBox().isSelected())
+                .collect(Collectors.toList());
+    }
 }

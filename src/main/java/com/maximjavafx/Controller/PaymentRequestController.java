@@ -6,6 +6,7 @@ import com.maximjavafx.models.PaymentRequest;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
@@ -48,6 +49,27 @@ public class PaymentRequestController implements Initializable{
 
     @FXML
     private void add(ActionEvent event) {
+        if(!isValidField()){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Поля пустые!");
+            alert.setContentText("Заполните все поля");
+            alert.showAndWait();
+            return;
+        }
+
+        var request = getPaymentRequest();
+        DocsRepository.getInstance().addDoc(request);
+        close();
+    }
+
+    private boolean isValidField(){
+        return !(currency_field.getText().isEmpty() || number_field.getText().isEmpty() || date_field.getValue() == null
+                || sum_field.getText().isEmpty() || currencyRate_field.getText().isEmpty()
+                || user_field.getText().isEmpty() || partner_field.getText().isEmpty()
+                || commission_field.getText().isEmpty());
+    }
+
+    private PaymentRequest getPaymentRequest(){
         var request = new PaymentRequest();
         request.setCurrency(currency_field.getText());
         request.setNumber(number_field.getText());
@@ -57,8 +79,7 @@ public class PaymentRequestController implements Initializable{
         request.setUsername(user_field.getText());
         request.setPartner(partner_field.getText());
         request.setCommission(Double.parseDouble(commission_field.getText()));
-        DocsRepository.getInstance().addDoc(request);
-        close();
+        return request;
     }
 
     @FXML

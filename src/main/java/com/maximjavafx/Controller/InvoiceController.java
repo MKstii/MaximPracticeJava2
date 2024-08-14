@@ -1,16 +1,12 @@
 package com.maximjavafx.Controller;
 
 import com.maximjavafx.Repository.DocsRepository;
-import com.maximjavafx.Services.FormFactory;
 import com.maximjavafx.TextFormatFilter.NumberFilter;
 import com.maximjavafx.models.Invoice;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 import java.net.URL;
@@ -59,8 +55,23 @@ public class InvoiceController implements Initializable {
 
     @FXML
     private void add(ActionEvent e){
+        if(!isValidFields()){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Поля пустые!");
+            alert.setContentText("Заполните все поля");
+            alert.showAndWait();
+            return;
+        }
+        var invoice = getInvoice();
+        var docsRep = DocsRepository.getInstance();
+        docsRep.addDoc(invoice);
+
+        close();
+    }
+
+    private Invoice getInvoice() {
         var invoice = new Invoice();
-        invoice.setNumber(sum_field.getText());
+        invoice.setNumber(number_field.getText());
         invoice.setCount(Integer.parseInt(count_field.getText()));
         invoice.setSum(Double.parseDouble(sum_field.getText()));
         invoice.setCurrency(currency_field.getText());
@@ -68,10 +79,14 @@ public class InvoiceController implements Initializable {
         invoice.setUsername(user_field.getText());
         invoice.setProduct(product_field.getText());
         invoice.setExchangeRate(Double.parseDouble(exchangeRate_field.getText()));
-        var docsRep = DocsRepository.getInstance();
-        docsRep.addDoc(invoice);
+        return invoice;
+    }
 
-        close();
+    private boolean isValidFields(){
+        return !(number_field.getText().isEmpty() || count_field.getText().isEmpty() || sum_field.getText().isEmpty()
+                || currency_field.getText().isEmpty() || user_field.getText().isEmpty()
+                || product_field.getText().isEmpty() || exchangeRate_field.getText().isEmpty()
+                || datepicker_field.getValue() == null);
     }
 
     @FXML

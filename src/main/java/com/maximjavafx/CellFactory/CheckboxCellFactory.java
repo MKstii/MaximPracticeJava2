@@ -6,6 +6,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.util.Callback;
 
+import javax.print.Doc;
 import java.awt.*;
 
 public class CheckboxCellFactory implements Callback<TableColumn<Document, CheckBox>, TableCell<Document, CheckBox>> {
@@ -13,7 +14,7 @@ public class CheckboxCellFactory implements Callback<TableColumn<Document, Check
     @Override
     public TableCell<Document, CheckBox> call(TableColumn<Document, CheckBox> param) {
         return new TableCell<Document, CheckBox>() {
-            private final CheckBox checkBox = new CheckBox();
+            //private final CheckBox checkBox = new CheckBox();
 
             @Override
             protected void updateItem(CheckBox item, boolean empty) {
@@ -21,6 +22,8 @@ public class CheckboxCellFactory implements Callback<TableColumn<Document, Check
                 if (empty) {
                     setGraphic(null);
                 } else {
+                    Document doc = getTableView().getItems().get(getIndex());
+                    CheckBox checkBox = doc.getCheckBox();
                     setGraphic(checkBox);
                 }
             }

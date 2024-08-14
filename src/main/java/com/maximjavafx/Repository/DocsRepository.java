@@ -3,9 +3,7 @@ package com.maximjavafx.Repository;
 import com.maximjavafx.models.Document;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.ObservableListBase;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class DocsRepository {
@@ -29,5 +27,13 @@ public class DocsRepository {
 
     public void addDoc(Document doc){
         docs.add(doc);
+    }
+
+    public void addAll(List<Document> documents){
+        docs.addAll(documents);
+    }
+
+    public void deleteAll(List<Document> documents){
+        docs.removeAll(documents);
     }
 }

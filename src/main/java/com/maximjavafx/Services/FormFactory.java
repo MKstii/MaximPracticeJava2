@@ -1,36 +1,44 @@
 package com.maximjavafx.Services;
 
+import com.maximjavafx.Controller.InfoController;
+import com.maximjavafx.models.Document;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import lombok.AllArgsConstructor;
 
 import java.io.IOException;
 import java.net.URL;
 
-//TODO: баг, если через отмену закрыть форму, то instance не меняется. Либо отказаться, либо пофиксить
 public class FormFactory {
-    private Stage instance;
+    private Stage createBaseForm(Parent root, String title, Window owner) {
+        var scene = new Scene(root);
+        Stage stage = new Stage();
+        stage.setScene(scene);
+        stage.setResizable(false);
+        stage.setTitle(title);
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.initOwner(owner);
+        return stage;
+    }
 
-    public Stage CreateForm(URL viewPath, String formName) throws IOException {
-        if(instance == null){
-            Parent root = FXMLLoader.load(viewPath);
-            var scene = new Scene(root);
+    public Stage CreateForm(URL viewPath, String formName, Window mainWindow) throws IOException {
+        Parent root = FXMLLoader.load(viewPath);
+        return createBaseForm(root, formName, mainWindow);
+    }
 
-            Stage stage = new Stage();
-            stage.setScene(scene);
-            stage.setResizable(false);
-            stage.setTitle(formName);
+    public Stage CreateInfo(Document document, Window mainWindow) throws IOException {
+        var loader = new FXMLLoader(FormUrls.INFO);
+        Parent root = loader.load();
 
-            stage.setOnCloseRequest(event -> {
-                // TODO: думаю что лучше: убивать полностью окно или очищать поля?
-                // вернемся позже
-                instance = null;
-            });
+        Stage stage = createBaseForm(root, document.GetDocumentName(), mainWindow);
 
-            instance = stage;
-        }
-        return instance;
+        InfoController controller = loader.getController();
+        controller.loadDocument(document);
+
+        return stage;
     }
 }

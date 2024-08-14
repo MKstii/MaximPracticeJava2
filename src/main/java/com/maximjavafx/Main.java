@@ -1,6 +1,5 @@
 package com.maximjavafx;
 
-import com.maximjavafx.Controller.MainController;
 import com.maximjavafx.Services.FormUrls;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -22,15 +21,11 @@ public class Main extends Application{
         Parent root = loader.load();
         var scene = new Scene(root);
 
-        MainController controller = loader.getController();
-
         stage.setScene(scene);
         stage.setTitle("Документы");
         stage.setMinWidth(stage.getWidth());
         stage.setMinHeight(stage.getHeight());
-        stage.setOnCloseRequest(event -> {
-            controller.onClose();
-        });
+
         stage.show();
     }
 }
